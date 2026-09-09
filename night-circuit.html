@@ -430,47 +430,150 @@ function updateRain(dt) {
    ================================================================ */
 const bike = new THREE.Group();
 {
-  const wheelGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.09, 20);
-  const wheelMat = darkMat;
-  const rear = new THREE.Mesh(wheelGeo, wheelMat); rear.rotation.x = Math.PI / 2; rear.position.set(0, 0.34, 0.9);
-  const front = new THREE.Mesh(wheelGeo, wheelMat); front.rotation.x = Math.PI / 2; front.position.set(0, 0.34, -1.0);
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.30, 1.1), bodyDarkMat); body.position.set(0, 0.62, 0.0);
-  const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.85, 12), bodyDarkMat);
-  tank.rotation.z = Math.PI / 2; tank.position.set(0, 0.72, -0.35);
-  const spine = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 1.5), lampHeadMat);
-  spine.material = new THREE.MeshBasicMaterial({ color: C.accent, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
-  spine.position.set(0, 0.82, -0.35);
-  const seat = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.08, 0.5), bodyDarkMat); seat.position.set(0, 0.78, 0.45);
-  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.06, 0.06), metalMat); handle.position.set(0, 1.02, -1.05);
-  const rider = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.62, 0.46), bodyDarkMat); rider.position.set(0, 1.12, 0.32);
-  const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.23, 14, 10), bodyDarkMat); helmet.position.set(0, 1.5, 0.05);
-  const visor = new THREE.Mesh(new THREE.SphereGeometry(0.23, 14, 10), lampHeadMat);
-  visor.material = new THREE.MeshBasicMaterial({ color: C.cyan, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.75 });
-  visor.position.set(0, 1.5, 0.06);
-  const tail = new THREE.Sprite(glowMat(C.brake, 0.8)); tail.position.set(0, 0.75, 1.15); tail.scale.set(1.2, 1.2, 1);
-  /* dystopian neon trim: rim rings, underglow, side strips, head glow, spine */
-  const neonPink = new THREE.MeshBasicMaterial({ color: C.pink, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
-  const neonCyan = new THREE.MeshBasicMaterial({ color: C.cyan, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
-  const rimR = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.035, 8, 24),
-    new THREE.MeshBasicMaterial({ color: C.brake, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-  rimR.position.set(0, 0.34, 0.9);
-  const rimF = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.035, 8, 24), neonCyan);
-  rimF.position.set(0, 0.34, -1.0);
-  const under = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 2.4),
-    new THREE.MeshBasicMaterial({ color: C.accent, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, side: THREE.DoubleSide }));
-  under.rotation.x = -Math.PI / 2; under.position.set(0, 0.07, -0.05);
-  const stripL = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.07, 1.35), neonCyan);
-  stripL.position.set(-0.18, 0.62, -0.1);
-  const stripR = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.07, 1.35), neonPink);
-  stripR.position.set(0.18, 0.62, -0.1);
-  const head = new THREE.Sprite(glowMat(C.warm, 1)); head.scale.set(1.0, 1.0, 1); head.position.set(0, 0.72, -1.2);
-  const spineStripe = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), neonPink);
-  spineStripe.position.set(0, 1.15, 0.56);
-  const beam = new THREE.Mesh(new THREE.ConeGeometry(0.9, 7, 3), lampHeadMat);
-  beam.material = new THREE.MeshBasicMaterial({ color: C.warm, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.16, side: THREE.DoubleSide });
-  beam.rotation.x = Math.PI / 2; beam.position.set(0, 0.9, -4.4);
-  bike.add(rear, front, body, tank, spine, seat, handle, rider, helmet, visor, tail, beam,
-    rimR, rimF, under, stripL, stripR, head, spineStripe);
+  const suitDark = new THREE.MeshLambertMaterial({ color: 0x10142a, fog: true });
+  const panelDark = new THREE.MeshLambertMaterial({ color: 0x0b0f22, fog: true });
+  const tireM = new THREE.MeshLambertMaterial({ color: 0x060810, fog: true });
+  const glassDark = new THREE.MeshBasicMaterial({ color: 0x141c33, fog: true });
+  const neonGreen = new THREE.MeshBasicMaterial({ color: 0x3dff73, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  const neonOrange = new THREE.MeshBasicMaterial({ color: 0xff8c1a, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  const neonYellow = new THREE.MeshBasicMaterial({ color: 0xffe14d, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  const visorYellow = new THREE.MeshBasicMaterial({ color: 0xffe14d, transparent: true, opacity: 0.95, fog: false });
+
+  /* wheels: tires on lateral axles + green neon rim rings */
+  const wheelGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.22, 18);
+  const rimGeo = new THREE.TorusGeometry(0.20, 0.032, 8, 24);
+  const parts = [];
+  for (const wz of [0.95, -1.05]) {
+    const tire = new THREE.Mesh(wheelGeo, tireM);
+    tire.rotation.z = Math.PI / 2;
+    tire.position.set(0, 0.34, wz);
+    const rim = new THREE.Mesh(rimGeo, neonGreen);
+    rim.rotation.y = Math.PI / 2;
+    rim.position.set(0, 0.34, wz);
+    parts.push(tire, rim);
+  }
+  /* swingarm + front forks + fender */
+  const swing = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.10, 0.85), panelDark);
+  swing.position.set(0, 0.38, 0.55);
+  parts.push(swing);
+  const forkGeo = new THREE.CylinderGeometry(0.035, 0.035, 1.05, 8);
+  for (const s of [-1, 1]) {
+    const fork = new THREE.Mesh(forkGeo, metalMat);
+    fork.rotation.x = 0.42;
+    fork.position.set(s * 0.12, 0.72, -0.92);
+    parts.push(fork);
+  }
+  const fender = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.05, 0.55), panelDark);
+  fender.rotation.x = 0.08;
+  fender.position.set(0, 0.64, -1.05);
+  parts.push(fender);
+
+  /* sculpted tank + green pinstripes */
+  const tank = new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 10), panelDark);
+  tank.scale.set(0.46, 0.36, 0.85);
+  tank.position.set(0, 0.88, -0.35);
+  parts.push(tank);
+  for (const s of [-1, 1]) {
+    const pin = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.035, 0.72), neonGreen);
+    pin.position.set(s * 0.20, 0.93, -0.35);
+    parts.push(pin);
+  }
+  /* seat + raised tail + yellow tail strip + brake micro-dot */
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.09, 0.55), panelDark);
+  seat.position.set(0, 0.95, 0.35);
+  const tailU = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.24, 0.55), panelDark);
+  tailU.rotation.x = 0.10;
+  tailU.position.set(0, 1.06, 0.78);
+  const tailStrip = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.07, 0.05), neonYellow);
+  tailStrip.position.set(0, 1.08, 1.06);
+  const brake = new THREE.Sprite(glowMat(C.brake, 0.5));
+  brake.scale.set(0.35, 0.35, 1);
+  brake.position.set(0, 0.92, 1.05);
+  parts.push(seat, tailU, tailStrip, brake);
+
+  /* nose fairing + windshield + yellow headlights + glow + beam */
+  const nose = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.36, 0.55), panelDark);
+  nose.rotation.x = 0.16;
+  nose.position.set(0, 0.76, -0.92);
+  const shield = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.03, 0.38), glassDark);
+  shield.rotation.x = -0.55;
+  shield.position.set(0, 1.02, -0.82);
+  parts.push(nose, shield);
+  for (const s of [-1, 1]) {
+    const hl = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.07, 0.04), neonYellow);
+    hl.position.set(s * 0.10, 0.74, -1.20);
+    parts.push(hl);
+  }
+  const head = new THREE.Sprite(glowMat(C.warm, 1));
+  head.scale.set(1.1, 1.1, 1);
+  head.position.set(0, 0.74, -1.28);
+  const beam = new THREE.Mesh(new THREE.ConeGeometry(0.9, 7, 3),
+    new THREE.MeshBasicMaterial({ color: C.warm, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.16, side: THREE.DoubleSide }));
+  beam.rotation.x = Math.PI / 2;
+  beam.position.set(0, 0.85, -4.6);
+  parts.push(head, beam);
+
+  /* bars + mirrors */
+  const bars = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.05, 0.05), metalMat);
+  bars.position.set(0, 1.16, -0.72);
+  parts.push(bars);
+  for (const s of [-1, 1]) {
+    const mir = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.07, 0.04), panelDark);
+    mir.position.set(s * 0.30, 1.24, -0.72);
+    parts.push(mir);
+  }
+  /* orange fairing strips + underglow */
+  for (const s of [-1, 1]) {
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.09, 1.15), neonOrange);
+    strip.position.set(s * 0.205, 0.66, -0.55);
+    parts.push(strip);
+  }
+  const under = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 2.6),
+    new THREE.MeshBasicMaterial({ color: 0xff8c1a, transparent: true, opacity: 0.30, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, side: THREE.DoubleSide }));
+  under.rotation.x = -Math.PI / 2;
+  under.position.set(0, 0.06, -0.05);
+  parts.push(under);
+
+  /* exhaust + orange tip */
+  const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.095, 0.95, 10), metalMat);
+  exhaust.rotation.x = Math.PI / 2;
+  exhaust.position.set(0.24, 0.40, 0.40);
+  const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.12, 10), neonOrange);
+  tip.rotation.x = Math.PI / 2;
+  tip.position.set(0.24, 0.40, 0.90);
+  const tipGlow = new THREE.Sprite(glowMat(new THREE.Color(0xff8c1a), 0.6));
+  tipGlow.scale.set(0.4, 0.4, 1);
+  tipGlow.position.set(0.24, 0.40, 1.0);
+  parts.push(exhaust, tip, tipGlow);
+
+  /* rider: tucked torso, arms to the bars, thighs, hump, helmet + visor */
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.155, 0.20, 0.62, 10), suitDark);
+  torso.rotation.x = -0.85;
+  torso.position.set(0, 1.32, 0.12);
+  parts.push(torso);
+  const armGeo = new THREE.CylinderGeometry(0.05, 0.06, 0.72, 8);
+  for (const s of [-1, 1]) {
+    const arm = new THREE.Mesh(armGeo, suitDark);
+    arm.rotation.x = -1.15;
+    arm.position.set(s * 0.21, 1.30, -0.38);
+    const thigh = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.12, 0.48), suitDark);
+    thigh.rotation.x = 0.10;
+    thigh.position.set(s * 0.14, 0.94, 0.12);
+    parts.push(arm, thigh);
+  }
+  const hump = new THREE.Mesh(new THREE.SphereGeometry(0.5, 10, 8), suitDark);
+  hump.scale.set(0.32, 0.26, 0.40);
+  hump.position.set(0, 1.52, 0.32);
+  const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.21, 14, 10), panelDark);
+  helmet.position.set(0, 1.60, -0.30);
+  const visor = new THREE.Mesh(new THREE.SphereGeometry(0.20, 14, 10), visorYellow);
+  visor.scale.set(0.85, 0.50, 0.62);
+  visor.position.set(0, 1.585, -0.40);
+  const hstripe = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.30), neonGreen);
+  hstripe.position.set(0, 1.80, -0.28);
+  parts.push(hump, helmet, visor, hstripe);
+
+  bike.add(...parts);
 }
 bike.position.set(0, 0, -2.35);
 bike.scale.setScalar(0.5);
