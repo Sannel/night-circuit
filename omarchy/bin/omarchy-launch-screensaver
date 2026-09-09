@@ -1,0 +1,12 @@
+#!/bin/bash
+# omarchy:summary=Launch the Night Circuit 2076 cinematic screensaver
+# Overrides the stock terminal/ttfx screensaver for idle auto-launch.
+# Signature-compatible with the packaged omarchy-launch-screensaver
+# (honors screensaver-off toggle, accepts an optional "force" argument).
+
+if [[ $1 != "force" ]] && omarchy-toggle-enabled screensaver-off 2>/dev/null; then
+  exit 1
+fi
+
+setsid -f "$HOME/.config/omarchy/screensaver/neon-racer-run.sh" "${1:-}" </dev/null >/dev/null 2>&1
+exit 0

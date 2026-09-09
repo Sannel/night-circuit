@@ -1,0 +1,8 @@
+# Prepend user binaries to the session PATH so the idle service's
+# bash -lc resolves our omarchy-screensaver overrides (Night Circuit 2076)
+# ahead of the packaged /usr/bin copies. Loaded after 10-omarchy.
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) PATH="$HOME/.local/bin:$PATH" ;;
+esac
+export PATH

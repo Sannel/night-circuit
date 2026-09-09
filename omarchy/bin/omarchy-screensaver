@@ -1,0 +1,8 @@
+#!/bin/bash
+# omarchy:summary=Run the Night Circuit 2076 cinematic screensaver
+# Override used for on-demand previews (keybind) and as a fallback if the
+# packaged launcher ever resolves this name in the idle path.
+# Detaches so any terminal pane it is launched from closes immediately.
+
+setsid -f "$HOME/.config/omarchy/screensaver/neon-racer-run.sh" force </dev/null >/dev/null 2>&1
+exit 0
